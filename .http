@@ -1,0 +1,8 @@
+POST http://localhost:4000/
+
+mutation {
+  login(loginInfo: { email: "kinaneesamsonjohn@gmail.com", password: "Test1234" }){
+    name,
+    token
+  }
+}
