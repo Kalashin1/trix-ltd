@@ -46,15 +46,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 exports.__esModule = true;
 var mongoose_1 = require("mongoose");
 var bcrypt = require("bcrypt");
@@ -201,18 +192,6 @@ user_schema_1["default"].methods.verifyEmail = function (code) {
         });
     });
 };
-user_schema_1["default"].methods.updateGender = function (gender) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.update({ gender: gender })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/, "Gender updated!"];
-            }
-        });
-    });
-};
 user_schema_1["default"].methods.updateDisplayImage = function (displayImage) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -225,18 +204,6 @@ user_schema_1["default"].methods.updateDisplayImage = function (displayImage) {
         });
     });
 };
-user_schema_1["default"].methods.updateDOB = function (dob) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.update({ dob: dob })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/, 'date of birth updated!'];
-            }
-        });
-    });
-};
 user_schema_1["default"].methods.updatePhoneNumber = function (phoneNumber) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -245,89 +212,6 @@ user_schema_1["default"].methods.updatePhoneNumber = function (phoneNumber) {
                 case 1:
                     _a.sent();
                     return [2 /*return*/, 'Phone number updated!'];
-            }
-        });
-    });
-};
-user_schema_1["default"].methods.updateSocialMediaInfo = function (obj) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.update({ socialMediaInfo: obj })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/, 'Phone number updated!'];
-            }
-        });
-    });
-};
-user_schema_1["default"].statics.followUser = function (userId, followerId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var follower, user, followers, foundFollower;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.findById(followerId)];
-                case 1:
-                    follower = _a.sent();
-                    return [4 /*yield*/, this.findById(userId)];
-                case 2:
-                    user = _a.sent();
-                    if (!follower) return [3 /*break*/, 7];
-                    followers = user.followers;
-                    foundFollower = followers.find(function (f) { return f === follower._id.toString(); });
-                    if (foundFollower) {
-                        throw Error('that follower already exists');
-                    }
-                    console.log(user._id);
-                    return [4 /*yield*/, this.updateOne({ _id: userId }, { followers: __spreadArray(__spreadArray([], followers, true), [follower._id.toString()], false) })];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, this.updateOne({ _id: followerId }, { following: __spreadArray(__spreadArray([], follower.following, true), [follower._id.toString()], false) })];
-                case 4:
-                    _a.sent();
-                    return [4 /*yield*/, notification_1["default"].create({
-                            userId: follower._id,
-                            body: user.name + " started following you.",
-                            type: "New follower."
-                        })];
-                case 5:
-                    _a.sent();
-                    return [4 /*yield*/, this.findById(userId)];
-                case 6:
-                    user = _a.sent();
-                    return [2 /*return*/, user];
-                case 7: throw Error('No user with that id!');
-            }
-        });
-    });
-};
-user_schema_1["default"].statics.unFollowUser = function (userId, followerId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var follower, user, followers, foundFollower_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.findById(followerId)];
-                case 1:
-                    follower = _a.sent();
-                    return [4 /*yield*/, this.findById(userId)];
-                case 2:
-                    user = _a.sent();
-                    if (!follower) return [3 /*break*/, 7];
-                    followers = user.followers;
-                    foundFollower_1 = followers.find(function (f) { return f === follower._id.toString(); });
-                    if (!foundFollower_1) return [3 /*break*/, 6];
-                    return [4 /*yield*/, this.updateOne({ _id: user._id }, { followers: followers.filter(function (f) { return f !== foundFollower_1; }) })];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, this.updateOne({ _id: follower._id }, { following: follower.following.filter(function (f) { return f !== foundFollower_1; }) })];
-                case 4:
-                    _a.sent();
-                    return [4 /*yield*/, this.findById(user._id)];
-                case 5:
-                    user = _a.sent();
-                    return [2 /*return*/, user];
-                case 6: throw Error('No user with that id');
-                case 7: return [2 /*return*/];
             }
         });
     });

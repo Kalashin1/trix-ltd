@@ -1,13 +1,9 @@
 import { ApolloServer , gql } from "apollo-server";
 import * as mongoose from 'mongoose';
 require('dotenv').config()
+import { UserQueries, UserMutations } from "./controllers/user/user";
 
-import ArticleMutations from "./controllers/article/article.controller";
-import { ArticleQueries, Article } from "./controllers/article/article.controller";
-import { CommentQueries, CommentMutations, Comment } from "./controllers/comment/comment.controller";
-import { NotificationQueries, NotificationMutations, Notification } from "./controllers/notification/notification.controller";
-import { UserMutations, UserQueries, User } from "./controllers/user/user";
-const url = 'mongodb://localhost:27017/trix-ltd'
+const url = `${process.env.DATABASE_URL}`;
 
 const typeDefs = gql`
   type Edge {
@@ -28,62 +24,45 @@ const typeDefs = gql`
 
   type Node {
     User: User
-    Article: Article
-    Comment: Comment
-    Notification: Notification
   }
 
   type User {
-    name: String!
     _id: ID!
+    name: String!
     email: String!
-    emailVerified: String!
+    emailVerified: Boolean
     phoneNumber: String!
     displayImage: String!
-    gender: String!
-    dob: String!
+    password: String!
+    createdAt: String!
     token: String!
-    createdAt: String!
-    socialMediaInfo: _SocialMediaInfo
-    savedArticles: [Article]
-    articles: [Article]
-    followers: [User]!
-    notifications: [Notification!]!
-    following: [User]!
-  }
-  
-
-  type Article {
-    _id: ID
-    title: String!
-    createdAt: String!
-    updatedAt: String!
-    body: String!
-    socialImage: String!
-    url: String!
-    tags: [String!]!
-    category: String!
-    views: Int!
-    readingTime: String!
-    likes: Int!
-    dislikes: Int!
-    saves: Int!
-    thumbsUp: Int!
-    author: String!
-    comments: [Comment!]!
+    exchanges: [String!]!
+    emailVerificationCode: Int!
   }
 
-  type Comment {
-    _id: ID
-    createdAt: String!
-    updatedAt: String!
-    body: String!
-    userId: String!
-    user: User!
-    parentCommentId: String
-    articleId: String!
-    likes: Int!
-    comments: [Comment]!
+  type Exchange {
+    accepting: [String!]!
+    exchanging: [String!]!
+    exchangedCoin: String!
+    exchangeUnits: Int!
+    acceptedCoin: String!
+    acceptedUnits: Int!
+    date: String!
+    status: String!
+    owner: User!
+    customer: User!
+  }
+
+  type Transaction {
+    coin: String!
+    units: Int!
+    amount: Int!
+    type: String!
+    status: String!
+    reference: String!
+    transactionId: String!
+    customer: User!
+    date: String!
   }
 
   type Notification {
@@ -95,106 +74,43 @@ const typeDefs = gql`
     date: String!
   }
 
-  type _SocialMediaInfo {
-    facebook: String!
-    twitter: String!
-    instagram: String!
-  }
+  
 
   type Query {
-    users(after: String, limit: Int!): Response!
+    users: [User!]!
     user(id: String): User!
-    articles(after: String, limit: Int!, before: String): Response!
-    article(id: String): Article!
-    comments(articleId: String, limit: Int!, before: String, after: String): Response!
-    comment(id: String): Comment!
-    notifications(limit: Int!, before: String, after: String): Response!
-    notification(id: String): Notification!
-    usersNotifications(userId: String, limit: Int!, before: String, after: String): Response!
-    usersUnReadNotifications(userId: String, limit: Int!, before: String, after: String): Response!
   }
 
   input CreateAccount {
     name: String
     email: String
     phoneNumber: String
-    gender: String
     password: String
   }
 
-  input LoginInfo{
+  input LoginInfo {
     email: String
     password: String
   }
-
-  input SocialMediaInfo {
-    facebook: String
-    twitter: String
-    instagram: String
-  }
-
-  input CreateArticleInput {
-    title: String!
-    body: String!
-    tags: [String!]!
-    category: String!
-    author: String!
-    socialImage: String
-    _id: String
-  }
-
-  input CreateComment {
-    _id: ID
-    userId: String!
-    articleId: String!
-    body: String!
-    parentCommentId: String
+  
+  type Message {
+    message: String
   }
 
   type Mutation{
     createAccount(profile: CreateAccount): User!
     login(loginInfo: LoginInfo): User!
-    updateDOB(id: String, dob: String): User!
-    updateDisplayImage(id: String, imageUrl: String): User!
-    updateSocialMediaInfo(id: String, socialMediaInfo: SocialMediaInfo): User!
-    updatePhoneNumber(id: String, phoneNumber: String): User!
-    updateGender(id: String, gender: String): User!
-    deleteAccount(id: String): User!
-    followUser(userId: String, followerId: String): User!
-    unFollowUser(userId: String, followerId: String): User!
-    createArticle(article: CreateArticleInput): Article
-    updateArticle(article: CreateArticleInput): Article
-    deleteArticle(article: CreateArticleInput): Article
-    toggleLikes(articleId: String, userId: String, optn: String): Article
-    toggleSaves(articleId: String, userId: String, optn: String): Article
-    toggleViews(articleId: String, userId: String, optn: String): Article
-    createComment(comment: CreateComment): Comment
-    editComment(comment: CreateComment): Comment
-    deleteComment(comment: CreateComment): Comment
-    createChildComment(comment: CreateComment): Comment 
-    likeComment(userId: String, optn: String, commentId: String): Comment
-    markNotificationAsRead(id: String): Notification
-    markMultipleNotificationsAsRead(ids: [String!]!): String
+    updatePhoneNumber(id: String, phoneNumber: String): Message!
   }
 `
 
 const resolvers = {
-  User,
-  Article,
-  Comment,
-  Notification,
-  Query : {
+  Query: {
     ...UserQueries,
-    ...ArticleQueries,
-    ...NotificationQueries,
-    ...CommentQueries
   },
 
   Mutation: {
     ...UserMutations,
-    ...ArticleMutations,
-    ...CommentMutations,
-    ...NotificationMutations
   }
 }
 
@@ -204,6 +120,7 @@ const server = new ApolloServer({
   context: ({ req, res }) => ({ req, res }) 
 })
 
+// @ts-ignore
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true})
 .then((_result: any) => server.listen().then(({ url }) => {
   console.log(url)

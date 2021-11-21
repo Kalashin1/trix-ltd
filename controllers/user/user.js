@@ -37,95 +37,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.UserMutations = exports.UserQueries = exports.User = void 0;
-var user_controller_1 = require("./user.controller");
 var user_model_1 = require("../../data/models/user.model");
-var article_model_1 = require("../../data/models/article.model");
-var notification_1 = require("../../data/models/notification");
-exports.User = {
-    articles: function (parent) {
+exports.User = {};
+exports.UserQueries = {
+    users: function (_) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, article_model_1["default"].getUserArticles(parent._id)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    },
-    savedArticles: function (parent) {
-        return __awaiter(this, void 0, void 0, function () {
-            var articles;
-            var _this = this;
-            return __generator(this, function (_a) {
-                articles = parent.savedArticles.map(function (article) { return __awaiter(_this, void 0, void 0, function () {
-                    return __generator(this, function (_a) {
-                        return [2 /*return*/, article_model_1["default"].findById(article)];
-                    });
-                }); });
-                return [2 /*return*/, articles];
-            });
-        });
-    },
-    followers: function (parent) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, parent.followers.map(function (f) { return user_model_1["default"].findById(f); })];
-            });
-        });
-    },
-    following: function (parent) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, parent.following.map(function (f) { return user_model_1["default"].findById(f); })];
-            });
-        });
-    },
-    notifications: function (parent) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, notification_1["default"].findUserNotifications(parent._id)];
-            });
-        });
-    }
-};
-exports.UserQueries = {
-    users: function (_, _a, context) {
-        var after = _a.after, limit = _a.limit;
-        return __awaiter(this, void 0, void 0, function () {
-            var Users, Edges, pageInfo, Response;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.getUsers)()];
-                    case 1:
-                        Users = _b.sent();
-                        if (!after) {
-                            after = Users[0]._id.toString();
-                        }
-                        Edges = Users.map(function (user) {
-                            console.log(user);
-                            return ({
-                                cursor: user._id.toString(),
-                                node: { User: user }
-                            });
-                        });
-                        pageInfo = {
-                            endCursor: Users[Edges.indexOf(Edges.find(function (e) { return e.node.User._id.toString() == after; })) + limit - 1]._id.toString(),
-                            hasNextPage: false
-                        };
-                        Response = {
-                            pageInfo: pageInfo,
-                            count: Edges.length,
-                            edges: Edges.slice(Edges.indexOf(Edges.find(function (e) { return e.node.User._id.toString() == after; })), Edges.indexOf(Edges.find(function (e) { return e.node.User._id.toString() == after; })) + limit)
-                        };
-                        console.log(Response);
-                        return [2 /*return*/, Response];
+                    case 0: return [4 /*yield*/, user_model_1["default"].find({})];
+                    case 1: 
+                    // console.log(context.req.headers.usertoken);
+                    return [2 /*return*/, _a.sent()];
                 }
             });
         });
     },
     user: function (_, _a, context) {
         var id = _a.id;
-        return (0, user_controller_1.getUser)(id);
+        return user_model_1["default"].findById(id);
     }
 };
 exports.UserMutations = {
@@ -135,7 +64,7 @@ exports.UserMutations = {
             var _b, User, token;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.createAccount)(profile)];
+                    case 0: return [4 /*yield*/, user_model_1["default"].createAccount(profile)];
                     case 1:
                         _b = _c.sent(), User = _b[0], token = _b[1];
                         User.token = token;
@@ -150,7 +79,7 @@ exports.UserMutations = {
             var _b, user, token;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.login)(loginInfo)];
+                    case 0: return [4 /*yield*/, user_model_1["default"].login(loginInfo)];
                     case 1:
                         _b = _c.sent(), user = _b[0], token = _b[1];
                         user.token = token;
@@ -162,98 +91,23 @@ exports.UserMutations = {
     updatePhoneNumber: function (_, _a, context) {
         var phoneNumber = _a.phoneNumber, id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.updatePhoneNumber)(id, phoneNumber)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    updateDOB: function (_, _a, context) {
-        var dob = _a.dob, id = _a.id;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.updateDOB)(id, dob)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    updateDisplayImage: function (_, _a, context) {
-        var imageUrl = _a.imageUrl, id = _a.id;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.updateDisplayImage)(id, imageUrl)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    updateGender: function (_, _a, context) {
-        var gender = _a.gender, id = _a.id;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.updateGender)(id, gender)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    updateSocialMediaInfo: function (_, _a, context) {
-        var socialMediaInfo = _a.socialMediaInfo, id = _a.id;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, user_controller_1.updateSocialMediaInfo)(id, socialMediaInfo)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                }
-            });
-        });
-    },
-    deleteAccount: function (_, _a, context) {
-        var id = _a.id;
-        return __awaiter(this, void 0, void 0, function () {
-            var user;
+            var user, res, e_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        user = (0, user_controller_1.getUser)(id);
-                        if (!user) return [3 /*break*/, 2];
-                        return [4 /*yield*/, (0, user_controller_1.deleteUser)(id)];
-                    case 1:
-                        _b.sent();
-                        return [2 /*return*/, user];
-                    case 2: return [2 /*return*/];
-                }
-            });
-        });
-    },
-    followUser: function (_, _a) {
-        var userId = _a.userId, followerId = _a.followerId;
-        return __awaiter(this, void 0, void 0, function () {
-            var user;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, user_model_1["default"].followUser(userId, followerId)];
+                        _b.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, user_model_1["default"].findById(id)];
                     case 1:
                         user = _b.sent();
-                        console.log(user);
-                        return [2 /*return*/, user];
-                }
-            });
-        });
-    },
-    unFollowUser: function (_, _a) {
-        var userId = _a.userId, followerId = _a.followerId;
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, user_model_1["default"].unFollowUser(userId, followerId)];
-                    case 1: return [2 /*return*/, _b.sent()];
+                        return [4 /*yield*/, user.updatePhoneNumber(phoneNumber)];
+                    case 2:
+                        res = _b.sent();
+                        return [2 /*return*/, { message: res }];
+                    case 3:
+                        e_1 = _b.sent();
+                        console.log(e_1);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

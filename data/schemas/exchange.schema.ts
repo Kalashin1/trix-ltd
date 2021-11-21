@@ -36,4 +36,4 @@ const ExchangeSchema = new Schema<ExchangeInterface>({
   }
 })
 
-export default ExchangeInterface
+export default ExchangeSchema

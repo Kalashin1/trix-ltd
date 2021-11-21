@@ -29,36 +29,12 @@ var UserSchema = new mongoose_1.Schema({
     emailVerificationCode: {
         type: Number
     },
-    dob: {
-        type: String
-    },
     displayImage: {
         type: String
-    },
-    socialMediaInfo: {
-        twitter: { type: String },
-        facebook: { type: String },
-        instagram: { type: String }
-    },
-    gender: {
-        type: String,
-        required: [true, 'Please provide your gender']
     },
     createdAt: {
         type: String,
         "default": function () { return new Date().toString(); }
-    },
-    articles: {
-        type: [String]
-    },
-    savedArticles: {
-        type: [String]
-    },
-    followers: {
-        type: [String]
-    },
-    following: {
-        type: [String]
     }
 });
 exports["default"] = UserSchema;
