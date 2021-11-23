@@ -48,7 +48,7 @@ export interface ExchangeInterface extends Document{
   acceptedUnits: number
   date: string
   status: string // 'inProgress' | 'singnedOff' | 'initiated'
-  owner: string | ObjectId
+  owner: string | ObjectId // customerId or TrixId
   customer: string | ObjectId
 }
 
@@ -62,12 +62,12 @@ export interface TransactionInterface extends Document {
   coin: string
   units: number
   amount: number
-  type: string
-  status: string
-  reference: string
-  transactionId: string
-  customer: string
-  date: string
+  type: string // will be buy or sell
+  status: string  // will hold the status of the transaction
+  reference: string // will hold the id of the transaction from the API, different from the Id in the db.
+  transactionId: string // A TimeStamp that can also be used to obtain a transaction, different from the _id.
+  customer: string // The customer that made the transaction
+  date: string // TimeStamp of when the transaction occured.
 }
 
 export interface TransactionsModel extends Model<TransactionInterface> {

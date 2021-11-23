@@ -58,11 +58,12 @@ const typeDefs = gql`
     units: Int!
     amount: Int!
     type: String!
-    status: String!
-    reference: String!
-    transactionId: String!
-    customer: User!
-    date: String!
+    status: String
+    reference: String
+    transactionId: String
+    customerId: String!
+    customer: User
+    date: String
   }
 
   type Notification {
@@ -79,6 +80,8 @@ const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: String): User!
+    transactions: [Transaction!]!
+    transaction(id: String): Transaction!
   }
 
   input CreateAccount {
@@ -92,6 +95,16 @@ const typeDefs = gql`
     email: String
     password: String
   }
+
+  input CreateTransaction {
+    coin: String!
+    units: Int!
+    amount: Int!
+    type: String!
+    customerId: String!
+    customer: String
+  }
+
   
   type Message {
     message: String
@@ -101,6 +114,7 @@ const typeDefs = gql`
     createAccount(profile: CreateAccount): User!
     login(loginInfo: LoginInfo): User!
     updatePhoneNumber(id: String, phoneNumber: String): Message!
+    createTransaction(transaction: CreateTransaction): Transaction!
   }
 `
 

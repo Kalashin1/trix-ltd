@@ -29,6 +29,10 @@ const TransactionSchema = new Schema<TransactionInterface>({
   customer: {
     type: String
   },
+  customerId: {
+    type: String,
+    required: [true, 'Please provide the customer this transaction belongs to,']
+  },
   date: {
     type: String
   }
