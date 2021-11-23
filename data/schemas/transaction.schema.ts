@@ -35,6 +35,9 @@ const TransactionSchema = new Schema<TransactionInterface>({
   },
   date: {
     type: String
+  },
+  authorizationUrl: {
+    type: String
   }
 })
 

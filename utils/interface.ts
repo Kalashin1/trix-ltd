@@ -59,19 +59,23 @@ export interface ExchangesModel extends Model<ExchangeInterface> {
 }
 
 export interface TransactionInterface extends Document {
-  coin: string
-  units: number
-  amount: number
+  authorizationUrl: string // url to complete the process
+  coin: string // the token the person wanted to purchase
+  units: number // the number of tokens the customer will recieve or sell.
+  amount: number // The amount of the transaction
+  currency: string // The currency of the transaction
   type: string // will be buy or sell
   status: string  // will hold the status of the transaction
   reference: string // will hold the id of the transaction from the API, different from the Id in the db.
   transactionId: string // A TimeStamp that can also be used to obtain a transaction, different from the _id.
-  customer: string // The customer that made the transaction
+  customer: string // The wallet of the customer that made the transaction
+  customerId: string // the id of the customer
   date: string // TimeStamp of when the transaction occured.
 }
 
 export interface TransactionsModel extends Model<TransactionInterface> {
-  createTransaction: () => any
+  createTransaction: () => Promise<TransactionInterface>
+  verifyTransaction: (id: string) => Promise<string>
 }
 
 export interface INotification extends Document {
