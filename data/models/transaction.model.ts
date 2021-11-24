@@ -43,7 +43,7 @@ TransactionSchema.statics.verifyTransaction = async function(id){
 TransactionSchema.methods.addCustomer = async function (customer) {
   if(!this.customer){
     await this.updateOne({ customer: customer });
-    await Notifications.creat({
+    await Notifications.create({
       userId: this.customerId,
       body: `New wallet ${this.customer} provided for transaction with reference ${this.transactionId}`,
       type: "Transaction Notification, Wallet Provided"
@@ -56,7 +56,7 @@ TransactionSchema.methods.addCustomer = async function (customer) {
 TransactionSchema.post('save', async function(){
   await Notifications.create({
     userId: this.customerId,
-    body:   body: `New transaction to ${this.type} ${this.units} ${this.coin} at ${new Date(this.date).toString()} with wallet ${this.customer}`,
+    body:`New transaction to ${this.type} ${this.units} ${this.coin} at ${new Date(this.date).toString()} with wallet ${this.customer}`,
     type: "Payment."
   })
 })

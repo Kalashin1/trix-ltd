@@ -1,8 +1,4 @@
 "use strict";
-var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
-    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-    return cooked;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -114,7 +110,7 @@ transaction_schema_1["default"].methods.addCustomer = function (customer) {
                     return [4 /*yield*/, this.updateOne({ customer: customer })];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, notification_1["default"].creat({
+                    return [4 /*yield*/, notification_1["default"].create({
                             userId: this.customerId,
                             body: "New wallet " + this.customer + " provided for transaction with reference " + this.transactionId,
                             type: "Transaction Notification, Wallet Provided"
@@ -133,8 +129,9 @@ transaction_schema_1["default"].post('save', function () {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, notification_1["default"].create({
                         userId: this.customerId,
-                        body: body
-                    }(templateObject_1 || (templateObject_1 = __makeTemplateObject(["New transaction to ", " ", " ", " at ", " with wallet ", ""], ["New transaction to ", " ", " ", " at ", " with wallet ", ""])), this.type, this.units, this.coin, new Date(this.date).toString(), this.customer), type, "Payment.")];
+                        body: "New transaction to " + this.type + " " + this.units + " " + this.coin + " at " + new Date(this.date).toString() + " with wallet " + this.customer,
+                        type: "Payment."
+                    })];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -144,4 +141,3 @@ transaction_schema_1["default"].post('save', function () {
 });
 var Transactions = (0, mongoose_1.model)('transaction', transaction_schema_1["default"]);
 exports["default"] = Transactions;
-var templateObject_1;
