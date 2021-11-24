@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 require('dotenv').config()
 import { UserQueries, UserMutations } from "./controllers/user/user";
 import { TransactionMutations, TransactionQueries } from "./controllers/transaction/transaction.controller";
+import { ExchangeQueries, ExchangeMutations } from "./controllers/exchange/exchange.controller";
 
 const url = `${process.env.DATABASE_URL}`;
 
@@ -42,15 +43,14 @@ const typeDefs = gql`
   }
 
   type Exchange {
-    accepting: [String!]!
-    exchanging: [String!]!
+    _id: String!
     exchangedCoin: String!
     exchangeUnits: Int!
     acceptedCoin: String!
     acceptedUnits: Int!
+    acceptedCoinWallet: String!  
     date: String!
     status: String!
-    owner: User!
     customer: User!
   }
 
@@ -85,6 +85,8 @@ const typeDefs = gql`
     user(id: String): User!
     transactions: [Transaction!]!
     transaction(id: String): Transaction!
+    exchanges: [Exchange!]!
+    exchange(id: String!): Exchange!
   }
 
   input CreateAccount {
@@ -108,6 +110,15 @@ const typeDefs = gql`
     customer: String
   }
 
+  input CreateExchange {
+    exchangedCoin: String!
+    exchangeUnits: Int!
+    acceptedCoin: String!
+    acceptedUnits: Int!
+    acceptedCoinWallet: String!
+    customer: String!
+  }
+
   
   type Message {
     message: String
@@ -121,6 +132,7 @@ const typeDefs = gql`
     addCustomerWallet(wallet: String, id:String): Message!
     verifyTransactionWithId(id:String): Message
     deleteTransactionWithId(id: String): Message
+    createExchange(exchange: CreateExchange): Exchange!
   }
 `
 
@@ -128,11 +140,13 @@ const resolvers = {
   Query: {
     ...UserQueries,
     ...TransactionQueries,
+    ...ExchangeQueries,
   },
 
   Mutation: {
     ...UserMutations,
     ...TransactionMutations,
+    ...ExchangeMutations,
   }
 }
 

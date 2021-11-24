@@ -2,37 +2,37 @@ import { Schema } from "mongoose";
 import { ExchangeInterface } from "../../utils/interface";
 
 const ExchangeSchema = new Schema<ExchangeInterface>({
-  accepting: {
-    type: [String],
-    required: [true, 'Please provide the coins you are willing to accept.']
-  },
-  exchanging: {
-    type: [String],
-    required: [true, 'Please provide the coins you are exchanging.']
-  },
   exchangedCoin: {
-    type: String
+    type: String,
+    required: [true, 'Please enter the coin you want to exchange.']
   },
   exchangeUnits:{
-    type: Number
+    type: Number,
+    required: [true, 'Please enter the units of the token you want to exchange.']
   },
   acceptedCoin: {
-    type: String
+    type: String,
+    required: [true, 'Please provice the wallet you want to recieve the swapped coins']
   },
   acceptedUnits: {
-    type: Number
+    type: Number,
+    required: [true, 'Please enter the units of the token you want to exchange.']
+  },
+  acceptedCoinWallet: {
+    type: String,
+    required: [true, 'Please provice the wallet you want to recieve the swapped coins']
   },
   date: {
-    type: String
+    type: String,
+    default: () => String(new Date().getTime())
   },
   status: {
-    type: String
+    type: String,
+    default: () => 'inProgress'
   }, // 'inProgress' | 'singnedOff' | 'initiated'
-  owner: {
-    type: String
-  },
   customer: {
-    type: String
+    type: String,
+    required: [true, 'Please provice the customer that wants to make this transaction.']
   }
 })
 

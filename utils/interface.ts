@@ -16,10 +16,8 @@ export interface UserInterface extends Document {
   updateDisplayImage: (imageUrl: string) => Promise<string>
   updatePhoneNumber: (phoneNumber: string) => Promise<string>
   verifyEmail: (code: number) => Promise<boolean>
-  startExchange: () => Promise<any>
-  signOffExchange: () => any
-  buyCrypto: () => any
-  sellCrypto: () => any
+  // startExchange: () => Promise<any>
+  // signOffExchange: () => any
   createExchange: () => any
 }
 
@@ -32,24 +30,22 @@ export interface UserModelInterface extends Model<UserInterface>{
   createAccount: () => Promise<any>
   login: (info: loginInfo) => Promise<any>
   sendVerificationEmail: (email: string) => Promise<string>
-  buyCrypto: () => any
-  sellCrypto: () => any
-  createExchange: () => any
-  startExchange: (userId: string, followerId: string) => Promise<UserInterface>
+  // buyCrypto: () => any
+  // sellCrypto: () => any
+  // createExchange: () => any
+  // startExchange: (userId: string, followerId: string) => Promise<UserInterface>
 }
 
 
 export interface ExchangeInterface extends Document{
-  accepting: string[]
-  exchanging: string[]
   exchangedCoin: string
   exchangeUnits: number
   acceptedCoin: string
   acceptedUnits: number
   date: string
   status: string // 'inProgress' | 'singnedOff' | 'initiated'
-  owner: string | ObjectId // customerId or TrixId
-  customer: string | ObjectId
+  customer: string | ObjectId // customer
+  acceptedCoinWallet: string  
 }
 
 export interface ExchangesModel extends Model<ExchangeInterface> {
