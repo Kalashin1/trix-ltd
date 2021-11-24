@@ -7,7 +7,8 @@ import { initializeTransaction, verifyTransaction } from "../../utils/payment-he
 import { model } from 'mongoose';
 
 TransactionSchema.pre('save', async function (){
-  this.date = new Date().getTime.toString();
+  this.date = String(new Date().getTime());
+  // console.log(this.date, new Date().getTime())
   this.transactionId = await crypto.createHash('sha256').update(this.date).digest('hex');
 
   if(this.type == 'buy'){
@@ -42,6 +43,11 @@ TransactionSchema.statics.verifyTransaction = async function(id){
 TransactionSchema.methods.addCustomer = async function (customer) {
   if(!this.customer){
     await this.updateOne({ customer: customer });
+    await Notifications.creat({
+      userId: this.customerId,
+      body: `New wallet ${this.customer} provided for transaction with reference ${this.transactionId}`,
+      type: "Transaction Notification, Wallet Provided"
+    })
     return { message: 'Wallet provided successfully'}; 
   }
   throw new Error('Wallet already provided!');
@@ -50,7 +56,7 @@ TransactionSchema.methods.addCustomer = async function (customer) {
 TransactionSchema.post('save', async function(){
   await Notifications.create({
     userId: this.customerId,
-    body: `Your ${this.type} transaction has been processed successfully, you will get your tokens in a minute.!.`,
+    body:   body: `New transaction to ${this.type} ${this.units} ${this.coin} at ${new Date(this.date).toString()} with wallet ${this.customer}`,
     type: "Payment."
   })
 })

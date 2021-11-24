@@ -2,6 +2,7 @@ import { ApolloServer , gql } from "apollo-server";
 import * as mongoose from 'mongoose';
 require('dotenv').config()
 import { UserQueries, UserMutations } from "./controllers/user/user";
+import { TransactionMutations, TransactionQueries } from "./controllers/transaction/transaction.controller";
 
 const url = `${process.env.DATABASE_URL}`;
 
@@ -54,16 +55,18 @@ const typeDefs = gql`
   }
 
   type Transaction {
+    _id: ID!
     coin: String!
     units: Int!
     amount: Int!
     type: String!
     status: String
+    authorizationUrl: String
     reference: String
-    transactionId: String
+    transactionId: String!
     customerId: String!
-    customer: User
-    date: String
+    customer: String
+    date: String!
   }
 
   type Notification {
@@ -115,16 +118,21 @@ const typeDefs = gql`
     login(loginInfo: LoginInfo): User!
     updatePhoneNumber(id: String, phoneNumber: String): Message!
     createTransaction(transaction: CreateTransaction): Transaction!
+    addCustomerWallet(wallet: String, id:String): Message!
+    verifyTransactionWithId(id:String): Message
+    deleteTransactionWithId(id: String): Message
   }
 `
 
 const resolvers = {
   Query: {
     ...UserQueries,
+    ...TransactionQueries,
   },
 
   Mutation: {
     ...UserMutations,
+    ...TransactionMutations,
   }
 }
 

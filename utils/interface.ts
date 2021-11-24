@@ -71,6 +71,7 @@ export interface TransactionInterface extends Document {
   customer: string // The wallet of the customer that made the transaction
   customerId: string // the id of the customer
   date: string // TimeStamp of when the transaction occured.
+  addCustomer: (wallet: string) => Promise<string> // add a customer's wallet to the transaction
 }
 
 export interface TransactionsModel extends Model<TransactionInterface> {
