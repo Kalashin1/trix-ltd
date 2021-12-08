@@ -51,7 +51,7 @@ UserSchema.statics.login = async function({email, password}) {
         subject: 'Account Login',
         text: `Recent login activity on your account`
       }
-      // await sendEmail(emailOpts)
+      await sendEmail(emailOpts)
       await Notifications.create({
         userId: user._id,
         body: `There is a recent login activity on your account.`,
@@ -70,30 +70,31 @@ UserSchema.statics.login = async function({email, password}) {
 
 
 UserSchema.statics.sendVerificationEmail = async function (email:string){
-  const user = await this.find({ email })
+  const user = await this.findOne({ email })
   if(email){
-    const token = createToken(user._id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
-    const emailVerificationCode = Math.floor(Math.random() * 100000)
+    const emailVerificationCode = Math.floor(Math.random() * 1000000)
     console.log(emailVerificationCode)
     await user.updateOne({ emailVerificationCode })
     const emailOpts = { 
       from: 'noreply@digitalsagemedia.con',
       to: user.email,
-      subject: 'Verify your token',
+      subject: 'Verify your account',
       text: `verification code ${emailVerificationCode}.`
     }
     await sendEmail(emailOpts)
-  } 
-  throw Error('No user with that email!');
+  }else {
+    throw Error('No user with that email!');
+  }
   
 }
 
-UserSchema.methods.verifyEmail = async function (code: number) {
+UserSchema.methods.verifyEmail = async function (code: string) {
   if (code === this.emailVerificationCode){
     await this.updateOne({ emailVerified: true })
     return true;
+  } else {
+    return false;
   }
-  return false;
 }
 
 

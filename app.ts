@@ -26,6 +26,9 @@ const typeDefs = gql`
 
   type Node {
     User: User
+    Exchange: Exchange
+    Transaction: Transaction
+    Notification: Notification
   }
 
   type User {
@@ -38,8 +41,8 @@ const typeDefs = gql`
     password: String!
     createdAt: String!
     token: String!
-    exchanges: [String!]!
-    emailVerificationCode: Int!
+    exchanges: [Exchange]!
+    transactions: [Transaction]!
   }
 
   type Exchange {
@@ -65,7 +68,7 @@ const typeDefs = gql`
     reference: String
     transactionId: String!
     customerId: String!
-    customer: String
+    customer: User!
     date: String!
   }
 
@@ -81,11 +84,11 @@ const typeDefs = gql`
   
 
   type Query {
-    users: [User!]!
+    users(before: String, after: String, limit: Int!): Response!
     user(id: String): User!
-    transactions: [Transaction!]!
+    transactions(before: String, after: String, limit: Int!): Response!
     transaction(id: String): Transaction!
-    exchanges: [Exchange!]!
+    exchanges(before: String, after: String, limit: String): Response!
     exchange(id: String!): Exchange!
   }
 
@@ -128,6 +131,8 @@ const typeDefs = gql`
     createAccount(profile: CreateAccount): User!
     login(loginInfo: LoginInfo): User!
     updatePhoneNumber(id: String, phoneNumber: String): Message!
+    sendEmailVerificationMessage(email: String): Message!
+    verifyEmail(email: String, code: String): Message!
     createTransaction(transaction: CreateTransaction): Transaction!
     addCustomerWallet(wallet: String, id:String): Message!
     verifyTransactionWithId(id:String): Message

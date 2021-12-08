@@ -27,14 +27,14 @@ const UserSchema: Schema<UserInterface> = new Schema<UserInterface>({
     default: false
   },
   emailVerificationCode: {
-    type: Number
+    type: String
   },
   displayImage: {
     type: String
   },
   createdAt: {
     type: String,
-    default: () => new Date().toString()
+    default: () => String(new Date().getTime())
   }
 })
 

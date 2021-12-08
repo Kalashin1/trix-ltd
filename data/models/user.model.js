@@ -119,45 +119,45 @@ user_schema_1["default"].statics.login = function (_a) {
                 ];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 5];
+                    if (!user) return [3 /*break*/, 6];
                     return [4 /*yield*/, bcrypt.compare(password, user.password)];
                 case 2:
                     result = _b.sent();
                     token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_SECRETE);
-                    if (!result) return [3 /*break*/, 4];
+                    if (!result) return [3 /*break*/, 5];
                     emailOpts = {
                         to: email,
                         from: 'noreply@digitalsagemedia.com',
                         subject: 'Account Login',
                         text: "Recent login activity on your account"
                     };
-                    // await sendEmail(emailOpts)
+                    return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
+                case 3:
+                    _b.sent();
                     return [4 /*yield*/, notification_1["default"].create({
                             userId: user._id,
                             body: "There is a recent login activity on your account.",
                             type: "Account Login."
                         })];
-                case 3:
-                    // await sendEmail(emailOpts)
+                case 4:
                     _b.sent();
                     return [2 /*return*/, [user, token]];
-                case 4: throw Error('incorrect password');
-                case 5: throw Error('incorrect email, no user exists for this email');
+                case 5: throw Error('incorrect password');
+                case 6: throw Error('incorrect email, no user exists for this email');
             }
         });
     });
 };
 user_schema_1["default"].statics.sendVerificationEmail = function (email) {
     return __awaiter(this, void 0, void 0, function () {
-        var user, token, emailVerificationCode, emailOpts;
+        var user, emailVerificationCode, emailOpts;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.find({ email: email })];
+                case 0: return [4 /*yield*/, this.findOne({ email: email })];
                 case 1:
                     user = _a.sent();
                     if (!email) return [3 /*break*/, 4];
-                    token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_EMAIL_VERIFICATION_SECRETE);
-                    emailVerificationCode = Math.floor(Math.random() * 100000);
+                    emailVerificationCode = Math.floor(Math.random() * 1000000);
                     console.log(emailVerificationCode);
                     return [4 /*yield*/, user.updateOne({ emailVerificationCode: emailVerificationCode })];
                 case 2:
@@ -165,14 +165,15 @@ user_schema_1["default"].statics.sendVerificationEmail = function (email) {
                     emailOpts = {
                         from: 'noreply@digitalsagemedia.con',
                         to: user.email,
-                        subject: 'Verify your token',
+                        subject: 'Verify your account',
                         text: "verification code " + emailVerificationCode + "."
                     };
                     return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
                 case 3:
                     _a.sent();
-                    _a.label = 4;
+                    return [3 /*break*/, 5];
                 case 4: throw Error('No user with that email!');
+                case 5: return [2 /*return*/];
             }
         });
     });

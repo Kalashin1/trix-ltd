@@ -2,20 +2,20 @@ import { ObjectId } from 'mongodb';
 import { Document, Model } from 'mongoose';
 
 export interface UserInterface extends Document {
-  _id: ObjectId
-  name: string
-  email: string
-  emailVerified: boolean
-  phoneNumber: string
-  displayImage: string
-  password: string
-  createdAt: string
-  token: string
-  exchanges: string[]
-  emailVerificationCode: number
-  updateDisplayImage: (imageUrl: string) => Promise<string>
-  updatePhoneNumber: (phoneNumber: string) => Promise<string>
-  verifyEmail: (code: number) => Promise<boolean>
+  _id: ObjectId //  id of the user
+  name: string // name of the user
+  email: string // email of the user
+  emailVerified: boolean // if they have verified their email
+  phoneNumber: string // phone number of the user
+  displayImage: string // displayImage of the user
+  password: string // password pf the user
+  createdAt: string // when they created their account timestamp
+  token: string // the current JWT token of the user, useful for verification
+  exchanges: string[] // swaps they have made on the platform
+  emailVerificationCode: string // code for verifying email
+  updateDisplayImage: (imageUrl: string) => Promise<string> // upload a display Image
+  updatePhoneNumber: (phoneNumber: string) => Promise<string> // update phone number
+  verifyEmail: (code: string) => Promise<boolean> // verify the users email
   // startExchange: () => Promise<any>
   // signOffExchange: () => any
   createExchange: () => any
@@ -29,11 +29,7 @@ export type loginInfo = {
 export interface UserModelInterface extends Model<UserInterface>{
   createAccount: () => Promise<any>
   login: (info: loginInfo) => Promise<any>
-  sendVerificationEmail: (email: string) => Promise<string>
-  // buyCrypto: () => any
-  // sellCrypto: () => any
-  // createExchange: () => any
-  // startExchange: (userId: string, followerId: string) => Promise<UserInterface>
+  sendVerificationEmail: (email: string) => Promise<void>
 }
 
 
@@ -45,7 +41,7 @@ export interface ExchangeInterface extends Document{
   date: string
   status: string // 'inProgress' | 'singnedOff' | 'initiated'
   customer: string | ObjectId // customer
-  acceptedCoinWallet: string  
+  acceptedCoinWallet: string  // wallet for accepting coins
 }
 
 export interface ExchangesModel extends Model<ExchangeInterface> {

@@ -27,14 +27,14 @@ var UserSchema = new mongoose_1.Schema({
         "default": false
     },
     emailVerificationCode: {
-        type: Number
+        type: String
     },
     displayImage: {
         type: String
     },
     createdAt: {
         type: String,
-        "default": function () { return new Date().toString(); }
+        "default": function () { return String(new Date().getTime()); }
     }
 });
 exports["default"] = UserSchema;

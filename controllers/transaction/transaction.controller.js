@@ -49,6 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.TransactionQueries = exports.TransactionMutations = void 0;
 var transaction_model_1 = require("../../data/models/transaction.model");
+var apollo_server_1 = require("apollo-server");
 exports.TransactionMutations = {
     createTransaction: function (_, _a) {
         var transaction = _a.transaction;
@@ -113,12 +114,103 @@ exports.TransactionMutations = {
     }
 };
 exports.TransactionQueries = {
-    transactions: function (_) {
+    transactions: function (_, _a) {
+        var before = _a.before, after = _a.after, limit = _a.limit;
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var transactions, currentCursor, Edges, pageInfo, Response_1, currentCursor, Edges, pageInfo, Response_2;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, transaction_model_1["default"].find({})];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1:
+                        transactions = _b.sent();
+                        // console.log(context.req.headers.usertoken);
+                        /**
+                         * * If before and after is not provided throw an error
+                         */
+                        if (!before && (!after)) {
+                            throw new apollo_server_1.UserInputError('before or after must be provided');
+                        }
+                        /**
+                         * * if no limit is provided use the default limit.
+                         */
+                        if (!limit) {
+                            limit == 5; // * TODO change this limit to 10 later
+                        }
+                        /**
+                         * * if before and after is provided at the same time, throw an error.
+                         */
+                        if (before && after) {
+                            after = transactions[0].date;
+                        }
+                        /**
+                         * * if only before is provided,
+                         */
+                        if (before && (!after)) {
+                            currentCursor = transactions.find(function (transaction) { return transaction.date == before; }).date;
+                            Edges = transactions.map(function (transaction) {
+                                return {
+                                    cursor: transaction.date,
+                                    node: { Transaction: transaction }
+                                };
+                            });
+                            console.log(Edges[0].node.Transaction.date);
+                            pageInfo = {
+                                endCursor: transactions[transactions.indexOf(transactions.find(function (transaction) { return transaction.date == before; })) - limit + 1].date,
+                                hasNextPage: function () {
+                                    var endCursor = transactions.indexOf(transactions.find(function (transaction) { return transaction.date == before; })) - limit + 1;
+                                    // console.log(transactions.slice(0, endCursor).length, limit)
+                                    if (transactions.slice(0, endCursor).length >= limit) {
+                                        return true;
+                                    }
+                                    else {
+                                        return false;
+                                    }
+                                } // TODO this should be determined programiatically hasNext page
+                            };
+                            Response_1 = {
+                                count: Edges.length,
+                                pageInfo: pageInfo,
+                                edges: Edges.slice(
+                                // * Get n number of edges after the cursor
+                                Edges.indexOf(Edges.find(function (e) { return e.node.Transaction.date == before; })) - limit, 
+                                // * Stop at the cursor
+                                Edges.indexOf(Edges.find(function (e) { return e.node.Transaction.date == before; })))
+                            };
+                            return [2 /*return*/, Response_1];
+                        }
+                        if (!before && (after)) {
+                            currentCursor = transactions.find(function (transaction) { return transaction.date == after; }).date;
+                            Edges = transactions.map(function (transaction) {
+                                return {
+                                    cursor: transaction.date,
+                                    node: { Transaction: transaction }
+                                };
+                            });
+                            pageInfo = {
+                                endCursor: transactions[transactions.indexOf(transactions.find(function (transaction) { return transaction.date == after; }))].date,
+                                hasNextPage: function () {
+                                    var endCursor = transactions.indexOf(transactions.find(function (transaction) { return transaction.date == after; })) + limit;
+                                    console.log(transactions.slice(endCursor, transactions.length).length, limit);
+                                    if (transactions.slice(endCursor, transactions.length).length >= limit) {
+                                        return true;
+                                    }
+                                    else {
+                                        return false;
+                                    }
+                                } // TODO this should be determined programiatically
+                            };
+                            Response_2 = {
+                                count: Edges.length,
+                                pageInfo: pageInfo,
+                                edges: Edges.slice(
+                                // * Stop at the cursor
+                                Edges.indexOf(Edges.find(function (e) { return e.node.Transaction.date == after; })), 
+                                // * Get n number of edges before the cursor
+                                Edges.indexOf(Edges.find(function (e) { return e.node.Transaction.date == after; })) + limit)
+                            };
+                            return [2 /*return*/, Response_2];
+                        }
+                        return [2 /*return*/];
                 }
             });
         });
