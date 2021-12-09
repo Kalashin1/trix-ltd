@@ -41,13 +41,20 @@ var user_model_1 = require("../../data/models/user.model");
 var transaction_model_1 = require("../../data/models/transaction.model");
 var exchange_model_1 = require("../../data/models/exchange.model");
 var apollo_server_1 = require("apollo-server");
+var jwt_handler_1 = require("../../utils/jwt-handler");
 exports.User = {
-    transactions: function (parent) {
+    transactions: function (parent, args) {
         return __awaiter(this, void 0, void 0, function () {
+            var transacts;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].find({ customerId: parent._id })];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, transaction_model_1["default"].find({ customerId: parent._id })
+                        // console.log(transacts)
+                    ];
+                    case 1:
+                        transacts = _a.sent();
+                        // console.log(transacts)
+                        return [2 /*return*/, transacts];
                 }
             });
         });
@@ -64,19 +71,27 @@ exports.User = {
     }
 };
 exports.UserQueries = {
-    users: function (_, _a) {
+    users: function (_, _a, context) {
         var before = _a.before, after = _a.after, limit = _a.limit;
         return __awaiter(this, void 0, void 0, function () {
-            var Users, currentCursor, Edges, pageInfo, Response_1, currentCursor, Edges, pageInfo, Response_2;
+            var token, verifiedToken, Users_1, currentCursor, Edges, pageInfo, Response_1, currentCursor, Edges, pageInfo, Response_2, error_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        // console.log(context.req.headers.usertoken);
+                        _b.trys.push([0, 2, , 3]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, user_model_1["default"].find({})];
+                    case 1:
+                        Users_1 = _b.sent();
                         /**
                          * * If before and after is not provided throw an error
                          */
                         if (!before && (!after)) {
-                            throw new apollo_server_1.UserInputError('before or after must be provided');
+                            after = Users_1[0].createdAt;
                         }
                         /**
                          * * if no limit is provided use the default limit.
@@ -90,15 +105,12 @@ exports.UserQueries = {
                         if (before && after) {
                             throw new apollo_server_1.UserInputError('before and after should not be provided together, please prvide only one.');
                         }
-                        return [4 /*yield*/, user_model_1["default"].find({})];
-                    case 1:
-                        Users = _b.sent();
                         /**
                          * * if only before is provided,
                          */
                         if (before && (!after)) {
-                            currentCursor = Users.find(function (user) { return user.createdAt == before; }).createdAt;
-                            Edges = Users.map(function (user) {
+                            currentCursor = Users_1.find(function (user) { return user.createdAt == before; }).createdAt;
+                            Edges = Users_1.map(function (user) {
                                 return {
                                     cursor: user.createdAt,
                                     node: { User: user }
@@ -106,11 +118,11 @@ exports.UserQueries = {
                             });
                             console.log(Edges[0].node.User.createdAt);
                             pageInfo = {
-                                endCursor: Users[Users.indexOf(Users.find(function (user) { return user.createdAt == before; })) - limit + 1].createdAt,
+                                endCursor: Users_1[Users_1.indexOf(Users_1.find(function (user) { return user.createdAt == before; })) - limit + 1].createdAt,
                                 hasNextPage: function () {
-                                    var endCursor = Users.indexOf(Users.find(function (user) { return user.createdAt == before; })) - limit + 1;
-                                    console.log(Users.slice(0, endCursor).length, limit);
-                                    if (Users.slice(0, endCursor).length >= limit) {
+                                    var endCursor = Users_1.indexOf(Users_1.find(function (user) { return user.createdAt == before; })) - limit + 1;
+                                    console.log(Users_1.slice(0, endCursor).length, limit);
+                                    if (Users_1.slice(0, endCursor).length >= limit) {
                                         return true;
                                     }
                                     else {
@@ -130,19 +142,19 @@ exports.UserQueries = {
                             return [2 /*return*/, Response_1];
                         }
                         if (!before && (after)) {
-                            currentCursor = Users.find(function (user) { return user.createdAt == after; }).createdAt;
-                            Edges = Users.map(function (user) {
+                            currentCursor = Users_1.find(function (user) { return user.createdAt == after; }).createdAt;
+                            Edges = Users_1.map(function (user) {
                                 return {
                                     cursor: user.createdAt,
                                     node: { User: user }
                                 };
                             });
                             pageInfo = {
-                                endCursor: Users[Users.indexOf(Users.find(function (user) { return user.createdAt == after; }))].createdAt,
+                                endCursor: Users_1[Users_1.indexOf(Users_1.find(function (user) { return user.createdAt == after; }))].createdAt,
                                 hasNextPage: function () {
-                                    var endCursor = Users.indexOf(Users.find(function (user) { return user.createdAt == after; })) + limit;
-                                    console.log(Users.slice(endCursor, Users.length).length, limit);
-                                    if (Users.slice(endCursor, Users.length).length >= limit) {
+                                    var endCursor = Users_1.indexOf(Users_1.find(function (user) { return user.createdAt == after; })) + limit;
+                                    console.log(Users_1.slice(endCursor, Users_1.length).length, limit);
+                                    if (Users_1.slice(endCursor, Users_1.length).length >= limit) {
                                         return true;
                                     }
                                     else {
@@ -155,24 +167,34 @@ exports.UserQueries = {
                                 pageInfo: pageInfo,
                                 edges: Edges.slice(
                                 // * Stop at the cursor
-                                Edges.indexOf(Edges.find(function (e) { return e.node.User.createdAt == after; })), 
+                                Edges.indexOf(Edges.find(function (e) { return e.node.User.createdAt == after; })) + 1, 
                                 // * Get n number of edges before the cursor
-                                Edges.indexOf(Edges.find(function (e) { return e.node.User.createdAt == after; })) + limit)
+                                Edges.indexOf(Edges.find(function (e) { return e.node.User.createdAt == after; })) + limit + 1)
                             };
                             return [2 /*return*/, Response_2];
                         }
-                        return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _b.sent();
+                        console.log(error_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     },
     user: function (_, _a, context) {
         var id = _a.id;
+        var token = context.req.headers.usertoken;
+        var verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+        // @ts-ignore
+        if (verifiedToken === false)
+            throw new apollo_server_1.ValidationError("You are not loggedIn");
         return user_model_1["default"].findById(id);
     }
 };
 exports.UserMutations = {
-    createAccount: function (_, _a, context) {
+    createAccount: function (_, _a) {
         var profile = _a.profile;
         return __awaiter(this, void 0, void 0, function () {
             var _b, User_1, token, e_1;
@@ -217,11 +239,16 @@ exports.UserMutations = {
     updatePhoneNumber: function (_, _a, context) {
         var phoneNumber = _a.phoneNumber, id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
-            var user, res, e_3;
+            var token, verifiedToken, user, res, e_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
                         return [4 /*yield*/, user_model_1["default"].findById(id)];
                     case 1:
                         user = _b.sent();
@@ -238,35 +265,45 @@ exports.UserMutations = {
             });
         });
     },
-    sendEmailVerificationMessage: function (parent, _a) {
+    sendEmailVerificationMessage: function (parent, _a, context) {
         var email = _a.email;
         return __awaiter(this, void 0, void 0, function () {
-            var error_1;
+            var token, verifiedToken, error_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 2, , 3]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
                         return [4 /*yield*/, user_model_1["default"].sendVerificationEmail(email)];
                     case 1:
                         _b.sent();
                         return [2 /*return*/, { message: 'Verification code sent!, check your email' }];
                     case 2:
-                        error_1 = _b.sent();
-                        console.log(error_1);
-                        return [2 /*return*/, new apollo_server_1.UserInputError(error_1.messsage)];
+                        error_2 = _b.sent();
+                        console.log(error_2);
+                        return [2 /*return*/, new apollo_server_1.UserInputError(error_2.messsage)];
                     case 3: return [2 /*return*/];
                 }
             });
         });
     },
-    verifyEmail: function (_, _a) {
+    verifyEmail: function (_, _a, context) {
         var email = _a.email, code = _a.code;
         return __awaiter(this, void 0, void 0, function () {
-            var User_2, emailVerified, error_2;
+            var token, verifiedToken, User_2, emailVerified, error_3;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
                         return [4 /*yield*/, user_model_1["default"].findOne({ email: email })];
                     case 1:
                         User_2 = _b.sent();
@@ -281,8 +318,8 @@ exports.UserMutations = {
                         }
                         return [3 /*break*/, 4];
                     case 3:
-                        error_2 = _b.sent();
-                        return [2 /*return*/, new apollo_server_1.UserInputError(error_2.message)];
+                        error_3 = _b.sent();
+                        return [2 /*return*/, new apollo_server_1.UserInputError(error_3.message)];
                     case 4: return [2 /*return*/];
                 }
             });

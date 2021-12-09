@@ -1,7 +1,7 @@
 import { ApolloServer , gql } from "apollo-server";
 import * as mongoose from 'mongoose';
 require('dotenv').config()
-import { UserQueries, UserMutations } from "./controllers/user/user";
+import { UserQueries, UserMutations, User } from "./controllers/user/user";
 import { TransactionMutations, TransactionQueries } from "./controllers/transaction/transaction.controller";
 import { ExchangeQueries, ExchangeMutations } from "./controllers/exchange/exchange.controller";
 
@@ -41,8 +41,8 @@ const typeDefs = gql`
     password: String!
     createdAt: String!
     token: String!
-    exchanges: [Exchange]!
-    transactions: [Transaction]!
+    exchanges: [Exchange]
+    transactions: [Transaction]
   }
 
   type Exchange {
@@ -88,7 +88,7 @@ const typeDefs = gql`
     user(id: String): User!
     transactions(before: String, after: String, limit: Int!): Response!
     transaction(id: String): Transaction!
-    exchanges(before: String, after: String, limit: String): Response!
+    exchanges(before: String, after: String, limit: Int!): Response!
     exchange(id: String!): Exchange!
   }
 
@@ -142,6 +142,7 @@ const typeDefs = gql`
 `
 
 const resolvers = {
+  User,
   Query: {
     ...UserQueries,
     ...TransactionQueries,

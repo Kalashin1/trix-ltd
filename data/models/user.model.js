@@ -119,31 +119,30 @@ user_schema_1["default"].statics.login = function (_a) {
                 ];
                 case 1:
                     user = _b.sent();
-                    if (!user) return [3 /*break*/, 6];
+                    if (!user) return [3 /*break*/, 5];
                     return [4 /*yield*/, bcrypt.compare(password, user.password)];
                 case 2:
                     result = _b.sent();
                     token = (0, jwt_handler_1.createToken)(user._id, process.env.JWT_SECRETE);
-                    if (!result) return [3 /*break*/, 5];
+                    if (!result) return [3 /*break*/, 4];
                     emailOpts = {
                         to: email,
                         from: 'noreply@digitalsagemedia.com',
                         subject: 'Account Login',
                         text: "Recent login activity on your account"
                     };
-                    return [4 /*yield*/, (0, email_handler_1.sendEmail)(emailOpts)];
-                case 3:
-                    _b.sent();
+                    // await sendEmail(emailOpts)
                     return [4 /*yield*/, notification_1["default"].create({
                             userId: user._id,
                             body: "There is a recent login activity on your account.",
                             type: "Account Login."
                         })];
-                case 4:
+                case 3:
+                    // await sendEmail(emailOpts)
                     _b.sent();
                     return [2 /*return*/, [user, token]];
-                case 5: throw Error('incorrect password');
-                case 6: throw Error('incorrect email, no user exists for this email');
+                case 4: throw Error('incorrect password');
+                case 5: throw Error('incorrect email, no user exists for this email');
             }
         });
     });

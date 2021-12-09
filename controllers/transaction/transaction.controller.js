@@ -50,13 +50,21 @@ exports.__esModule = true;
 exports.TransactionQueries = exports.TransactionMutations = void 0;
 var transaction_model_1 = require("../../data/models/transaction.model");
 var apollo_server_1 = require("apollo-server");
+var jwt_handler_1 = require("../../utils/jwt-handler");
 exports.TransactionMutations = {
-    createTransaction: function (_, _a) {
+    createTransaction: function (_, _a, context) {
         var transaction = _a.transaction;
         return __awaiter(this, void 0, void 0, function () {
+            var token, verifiedToken;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].create(__assign({}, transaction))];
+                    case 0:
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, transaction_model_1["default"].create(__assign({}, transaction))];
                     case 1: 
                     // console.log(transaction)
                     return [2 /*return*/, _b.sent()];
@@ -64,23 +72,37 @@ exports.TransactionMutations = {
             });
         });
     },
-    verifyTransactionWithId: function (_, _a) {
+    verifyTransactionWithId: function (_, _a, context) {
         var id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
+            var token, verifiedToken;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].verifyTransaction(id)];
+                    case 0:
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, transaction_model_1["default"].verifyTransaction(id)];
                     case 1: return [2 /*return*/, _b.sent()];
                 }
             });
         });
     },
-    deleteTransactionWithId: function (_, _a) {
+    deleteTransactionWithId: function (_, _a, context) {
         var id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
+            var token, verifiedToken;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].deleteOne({ _id: id })];
+                    case 0:
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, transaction_model_1["default"].deleteOne({ _id: id })];
                     case 1:
                         _b.sent();
                         return [2 /*return*/, { message: 'successful' }];
@@ -88,14 +110,19 @@ exports.TransactionMutations = {
             });
         });
     },
-    addCustomerWallet: function (_, _a) {
+    addCustomerWallet: function (_, _a, context) {
         var id = _a.id, wallet = _a.wallet;
         return __awaiter(this, void 0, void 0, function () {
-            var Transaction, message, error_1;
+            var token, verifiedToken, Transaction, message, error_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
                         return [4 /*yield*/, transaction_model_1["default"].findById(id)];
                     case 1:
                         Transaction = _b.sent();
@@ -114,13 +141,19 @@ exports.TransactionMutations = {
     }
 };
 exports.TransactionQueries = {
-    transactions: function (_, _a) {
+    transactions: function (_, _a, context) {
         var before = _a.before, after = _a.after, limit = _a.limit;
         return __awaiter(this, void 0, void 0, function () {
-            var transactions, currentCursor, Edges, pageInfo, Response_1, currentCursor, Edges, pageInfo, Response_2;
+            var token, verifiedToken, transactions, currentCursor, Edges, pageInfo, Response_1, currentCursor, Edges, pageInfo, Response_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].find({})];
+                    case 0:
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, transaction_model_1["default"].find({})];
                     case 1:
                         transactions = _b.sent();
                         // console.log(context.req.headers.usertoken);
@@ -128,7 +161,7 @@ exports.TransactionQueries = {
                          * * If before and after is not provided throw an error
                          */
                         if (!before && (!after)) {
-                            throw new apollo_server_1.UserInputError('before or after must be provided');
+                            after = transactions[0].date;
                         }
                         /**
                          * * if no limit is provided use the default limit.
@@ -140,7 +173,7 @@ exports.TransactionQueries = {
                          * * if before and after is provided at the same time, throw an error.
                          */
                         if (before && after) {
-                            after = transactions[0].date;
+                            throw new apollo_server_1.UserInputError('before and after cannot be provided at thesame time.');
                         }
                         /**
                          * * if only before is provided,
@@ -215,13 +248,26 @@ exports.TransactionQueries = {
             });
         });
     },
-    transaction: function (_, _a) {
+    transaction: function (_, _a, context) {
         var id = _a.id;
         return __awaiter(this, void 0, void 0, function () {
+            var token, verifiedToken, error_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, transaction_model_1["default"].findById(id)];
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        token = context.req.headers.usertoken;
+                        verifiedToken = (0, jwt_handler_1.verifyToken)(token, process.env.JWT_SECRETE);
+                        // @ts-ignore
+                        if (verifiedToken === false)
+                            throw new apollo_server_1.ValidationError("You are not loggedIn");
+                        return [4 /*yield*/, transaction_model_1["default"].findById(id)];
                     case 1: return [2 /*return*/, _b.sent()];
+                    case 2:
+                        error_2 = _b.sent();
+                        console.log(error_2);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

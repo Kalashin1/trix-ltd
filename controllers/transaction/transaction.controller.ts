@@ -1,24 +1,40 @@
 import Transactions from '../../data/models/transaction.model';
-import { verifyTransaction } from '../../utils/payment-helper';
-import { UserInputError } from 'apollo-server';
+import { UserInputError, ValidationError } from 'apollo-server';
+import { verifyToken } from '../../utils/jwt-handler';
 
 export const TransactionMutations = {
-  async createTransaction(_:any, { transaction }){
+  async createTransaction(_:any, { transaction }, context){
+    let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
     // console.log(transaction)
     return await Transactions.create({ ...transaction });
   },
 
-  async verifyTransactionWithId(_:any, { id }){
+  async verifyTransactionWithId(_:any, { id }, context){
+    let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
     return await Transactions.verifyTransaction(id);
   },
 
-  async deleteTransactionWithId(_:any, { id }){
+  async deleteTransactionWithId(_:any, { id }, context){
+    let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
     await Transactions.deleteOne({ _id: id})
     return { message : 'successful' }
   },
 
-  async addCustomerWallet(_:any, { id, wallet }){
+  async addCustomerWallet(_:any, { id, wallet }, context){
     try {
+      let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
       const Transaction = await Transactions.findById(id)
       const message = await Transaction.addCustomer(wallet)
       return message
@@ -29,15 +45,18 @@ export const TransactionMutations = {
 }
 
 export const TransactionQueries = {
-  async transactions(_:any, { before, after, limit }){
-
+  async transactions(_:any, { before, after, limit }, context){
+    let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
     const transactions = await Transactions.find({});
     // console.log(context.req.headers.usertoken);
     /**
      * * If before and after is not provided throw an error 
      */
      if(! before && (!after)){
-      throw new UserInputError('before or after must be provided')
+      after = transactions[0].date
     }
     /**
      * * if no limit is provided use the default limit.
@@ -49,7 +68,7 @@ export const TransactionQueries = {
      * * if before and after is provided at the same time, throw an error.
      */
     if(before && after){
-      after = transactions[0].date
+      throw new UserInputError('before and after cannot be provided at thesame time.')
     }
     /**
      * * if only before is provided,
@@ -153,7 +172,15 @@ export const TransactionQueries = {
     }
   },
 
-  async transaction(_:any, { id }){
-    return await Transactions.findById(id);
+  async transaction(_:any, { id }, context){
+    try {
+      let token = context.req.headers.usertoken
+      let verifiedToken = verifyToken(token, process.env.JWT_SECRETE)
+      // @ts-ignore
+      if (verifiedToken === false) throw new ValidationError("You are not loggedIn")
+      return await Transactions.findById(id);
+    } catch (error) {
+      console.log(error) 
+    }
   }
 }

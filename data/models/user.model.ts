@@ -51,7 +51,7 @@ UserSchema.statics.login = async function({email, password}) {
         subject: 'Account Login',
         text: `Recent login activity on your account`
       }
-      await sendEmail(emailOpts)
+      // await sendEmail(emailOpts)
       await Notifications.create({
         userId: user._id,
         body: `There is a recent login activity on your account.`,
